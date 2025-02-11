@@ -1,6 +1,6 @@
 const Header = () => {
   return (
-    <div className="bg-red-500 shadow-sm">
+    <div className="bg-[#49BBBD] shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
         {/* Logo */}
         <div className="flex items-center">
@@ -13,7 +13,7 @@ const Header = () => {
 
         {/* Navigation */}
         <nav
-          className="hidden md:flex space-x-6 text-black
+          className="hidden md:flex space-x-16 text-white
          font-medium"
         >
           <a href="/" className="hover:text-gray-900">
@@ -22,13 +22,13 @@ const Header = () => {
           <a href="/course" className="hover:text-gray-900">
             Courses
           </a>
-          <a href="#" className="hover:text-gray-900">
+          <a href="careers" className="hover:text-gray-900">
             Careers
           </a>
           <a href="/blog" className="hover:text-gray-900">
             Blog
           </a>
-          <a href="#" className="hover:text-gray-900">
+          <a href="aboutUs" className="hover:text-gray-900">
             About Us
           </a>
         </nav>
