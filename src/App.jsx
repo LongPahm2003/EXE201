@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp";
 import CourseDetail from "./pages/CourseDetail";
 import Blog from "./pages/Blog";
 import Admin from "./pages/Admin";
+import Checkout from "./pages/Checkout";
 
 function App() {
   return (
@@ -17,10 +18,11 @@ function App() {
           <Route path="/course" element={<Courses />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/coursedetail" element={<CourseDetail />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/admin" element={<Admin/>} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
