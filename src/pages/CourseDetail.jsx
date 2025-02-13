@@ -7,6 +7,7 @@ import {
   faTelegram,
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
+import { Link } from "react-router";
 
 const CourseDetail = () => {
   // Dữ liệu mẫu - bạn có thể thay thế bằng dữ liệu API thực tế sau
@@ -135,11 +136,14 @@ const CourseDetail = () => {
                 <p className="text-red-500 text-sm">{course.timeLeft}</p>
               </div>
 
-              <button className="w-full bg-teal-500 text-white py-3 rounded-lg font-semibold mb-6 hover:bg-teal-600">
+              <Link
+                to="/checkout"
+                className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg font-semibold mb-6 hover:bg-teal-600"
+              >
                 Mua Ngay
-              </button>
+              </Link>
 
-              <div className="mb-6">
+              <div className="mb-6 mt-6">
                 <h3 className="font-semibold mb-4">Khóa học bao gồm</h3>
                 <ul className="space-y-3">
                   {course.features.map((feature, index) => (
