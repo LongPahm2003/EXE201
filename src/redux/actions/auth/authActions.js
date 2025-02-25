@@ -11,15 +11,19 @@ export const login = (formData) => async (dispatch) => {
       });
       const data = await response.json();
       if (response.ok) {
+        // Lưu token vào local storage
+        localStorage.setItem('accessToken', data.result.data.accessToken);
+        localStorage.setItem('refreshToken', data.result.data.refreshToken);
+        
         dispatch({ type: 'LOGIN_SUCCESS', payload: data });
-        return { type: 'LOGIN_SUCCESS' }; // Trả về đối tượng hợp lệ
+        return { type: 'LOGIN_SUCCESS' }; 
       } else {
         dispatch({ type: 'LOGIN_FAILURE', payload: data.message || "Sai tài khoản hoặc mật khẩu." });
-        return { type: 'LOGIN_FAILURE', message: data.message || "Sai tài khoản hoặc mật khẩu." }; // Trả về thông báo lỗi
+        return { type: 'LOGIN_FAILURE', message: data.message || "Sai tài khoản hoặc mật khẩu." }; 
       }
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
-      return { type: 'LOGIN_FAILURE', message: error.message }; // Trả về thông báo lỗi
+      return { type: 'LOGIN_FAILURE', message: error.message }; 
     }
   };
 

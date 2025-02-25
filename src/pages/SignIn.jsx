@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { login } from "../actions/authActions";
+
+import { Alert } from "antd";
+import { login } from "../redux/actions/auth/authActions";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,6 +11,7 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -23,12 +26,12 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await dispatch(login(formData));
+
     if (result && result.type === "LOGIN_SUCCESS") {
       navigate("/");
     } else {
-      alert(
-        result.message ||
-          "Đăng nhập không thành công. Vui lòng kiểm tra lại email và mật khẩu."
+      setErrorMessage(
+        "Đăng nhập không thành công, vui lòng kiểm tra lại mật khẩu."
       );
     }
   };
@@ -50,6 +53,15 @@ const SignIn = () => {
           <h2 className="text-2xl font-semibold text-center mb-6">
             Welcome to DevKid
           </h2>
+
+          {errorMessage && (
+            <Alert
+              message={errorMessage}
+              type="error"
+              showIcon
+              className="mb-4"
+            />
+          )}
 
           {/* Login/Register Toggle */}
           <div className="flex rounded-full bg-red-500/20 p-1 mb-8">
