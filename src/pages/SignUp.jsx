@@ -1,7 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { register } from "../actions/authActions";
 
 const SignUp = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    phoneNumber: "",
+  });
+  const dispatch = useDispatch();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(register(formData));
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Left side - Image */}
@@ -34,7 +57,7 @@ const SignUp = () => {
             </Link>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -45,23 +68,11 @@ const SignUp = () => {
               <input
                 type="email"
                 id="email"
+                name="email"
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
                 placeholder="Enter your Email Address"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                User name
-              </label>
-              <input
-                type="text"
-                id="username"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
-                placeholder="Enter your User name"
+                value={formData.email}
+                onChange={handleInputChange}
               />
             </div>
 
@@ -75,8 +86,47 @@ const SignUp = () => {
               <input
                 type="password"
                 id="password"
+                name="password"
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
                 placeholder="Enter your Password"
+                value={formData.password}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Họ và tên
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
+                placeholder="Nhập họ và tên"
+                value={formData.fullName}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Số điện thoại
+              </label>
+              <input
+                type="text"
+                id="phoneNumber"
+                name="phoneNumber"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
+                placeholder="Nhập số điện thoại"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
               />
             </div>
 
@@ -84,7 +134,7 @@ const SignUp = () => {
               type="submit"
               className="w-full bg-red-500 text-white py-2 px-4 rounded-full hover:bg-black transition duration-200"
             >
-              Register
+              Đăng Ký
             </button>
           </form>
         </div>

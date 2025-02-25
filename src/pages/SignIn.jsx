@@ -1,25 +1,36 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../actions/authActions";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
-    rememberMe: false,
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    const result = await dispatch(login(formData));
+    if (result && result.type === "LOGIN_SUCCESS") {
+      navigate("/");
+    } else {
+      alert(
+        result.message ||
+          "Đăng nhập không thành công. Vui lòng kiểm tra lại email và mật khẩu."
+      );
+    }
   };
 
   return (
@@ -58,13 +69,13 @@ const SignIn = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-gray-700 mb-2">User name</label>
+              <label className="block text-gray-700 mb-2">Email</label>
               <input
-                type="text"
-                name="username"
-                placeholder="Enter your User name"
-                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-redbg-red-500"
-                value={formData.username}
+                type="email"
+                name="email"
+                placeholder="Nhập email"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={formData.email}
                 onChange={handleInputChange}
               />
             </div>
@@ -75,7 +86,7 @@ const SignIn = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  placeholder="Enter your Password"
+                  placeholder="Nhập mật khẩu"
                   className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-redbg-red-500"
                   value={formData.password}
                   onChange={handleInputChange}
