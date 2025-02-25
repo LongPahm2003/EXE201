@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { register } from "../actions/authActions";
+import { register } from "../redux/actions/auth/authActions";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({

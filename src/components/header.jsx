@@ -1,4 +1,37 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Modal, Button, Spin } from "antd";
+
 const Header = () => {
+  const navigate = useNavigate();
+
+  const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const showLoginModal = () => {
+    setIsLoginModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsLoginModalVisible(false);
+  };
+
+  const handleRegister = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/signup");
+    }, 1000);
+  };
+
+  const handleLogin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/signin");
+    }, 1000);
+  };
+
   return (
     <div className="bg-[#49BBBD] shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
@@ -33,16 +66,61 @@ const Header = () => {
           </a>
         </nav>
 
-        {/* User Profile */}
-        <div className="flex items-center space-x-2">
+        {/* User Profile and Cart */}
+        <div className="flex items-center space-x-4">
+          <Link to="/cart" className="text-white hover:text-gray-900">
+            <img
+              src="/src/assets/images/shopping-cart.png"
+              alt="History"
+              className="w-8 h-8"
+            />
+          </Link>
           <img
-            src="https://randomuser.me/api/portraits/women/44.jpg"
+            src="/src/assets/images/user.png"
             alt="User Avatar"
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover cursor-pointer bg-white"
+            onClick={showLoginModal}
           />
-          <span className="text-gray-800 font-medium">Lina</span>
-          <button className="text-gray-600">▼</button>
         </div>
+
+        {/* Login Modal */}
+        <Modal
+          title={
+            <div className="flex flex-col items-center">
+              <img
+                src="/src/assets/images/logo.jpg"
+                alt="Logo"
+                className="w-16 h-16 mb-2"
+              />
+            </div>
+          }
+          visible={isLoginModalVisible}
+          onCancel={handleCancel}
+          footer={null}
+          width={400}
+          height={600}
+        >
+          {loading ? (
+            <div className="flex justify-center">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <>
+              <p>
+                Vui lòng đăng nhập hoặc đăng kí tài khoản để tham gia học tập
+                cùng chúng tôi.
+              </p>
+              <div className="flex justify-between">
+                <Button type="primary" onClick={handleRegister}>
+                  Đăng ký
+                </Button>
+                <Button type="default" onClick={handleLogin}>
+                  Đăng nhập
+                </Button>
+              </div>
+            </>
+          )}
+        </Modal>
       </div>
     </div>
   );
