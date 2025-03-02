@@ -8,13 +8,17 @@ import {
 } from "react-icons/fa";
 import studentImg from "../assets/images/student.jpg";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 const Home = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: <FaFileInvoiceDollar className="text-white text-3xl" />,
       title: "Online Billing, Invoicing, & Contracts",
       description:
-        "Simple and secure control of your organization’s financial and legal transactions. Send customized invoices and contracts.",
+        "Simple and secure control of your organization's financial and legal transactions. Send customized invoices and contracts.",
     },
     {
       icon: <FaCalendarCheck className="text-white text-3xl" />,
@@ -26,7 +30,7 @@ const Home = () => {
       icon: <FaUsers className="text-white text-3xl" />,
       title: "Customer Tracking",
       description:
-        "Automate and track emails to individuals or groups. Skilline’s built-in system helps organize your organization.",
+        "Automate and track emails to individuals or groups. Skilline's built-in system helps organize your organization.",
     },
   ];
 
@@ -242,7 +246,10 @@ const Home = () => {
         <p className="mt-4 text-lg max-w-xl mx-auto">
           Join DevKid today and transform the way you learn or teach.
         </p>
-        <button className="mt-8 bg-white text-teal-500 px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition duration-300">
+        <button
+          onClick={() => navigate("/signup")}
+          className="mt-8 bg-white text-teal-500 px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition duration-300"
+        >
           Sign Up Now
         </button>
       </div>

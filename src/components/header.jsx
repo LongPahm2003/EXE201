@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Modal, Button, Spin } from "antd";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
 
   const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -75,60 +77,70 @@ const Header = () => {
               className="w-8 h-8"
             />
           </Link>
-          <img
-            src="/src/assets/images/user.png"
-            alt="User Avatar"
-            className="w-8 h-8 rounded-full object-cover cursor-pointer bg-white"
-            onClick={showLoginModal}
-          />
+
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <span className="text-white">Xin chào, {user.name}</span>
+            </div>
+          ) : (
+            <button
+              onClick={showLoginModal}
+              className="text-white hover:text-gray-900"
+            >
+              Đăng nhập
+            </button>
+          )}
         </div>
 
         {/* Login Modal */}
         <Modal
-  title={
-    <div className="flex flex-col items-center">
-      <img
-        src="/src/assets/images/logo.jpg"
-        alt="Logo"
-        className="w-16 h-16 mb-2"
-      />
-      <h2 className="text-xl font-semibold text-gray-800">Đăng nhập / Đăng ký</h2>
-    </div>
-  }
-  visible={isLoginModalVisible}
-  onCancel={handleCancel}
-  footer={null}
-  width={400}
-  className="rounded-lg" // Thêm border-radius cho modal
->
-  {loading ? (
-    <div className="flex justify-center items-center h-40">
-      <Spin size="large" />
-    </div>
-  ) : (
-    <div className="p-6">
-      <p className="text-center text-gray-700 mb-6">
-        Vui lòng đăng nhập hoặc đăng kí tài khoản để tham gia học tập cùng chúng tôi.
-      </p>
-      <div className="flex justify-between space-x-4">
-        <Button
-          type="primary"
-          onClick={handleRegister}
-          className="flex-1 bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          title={
+            <div className="flex flex-col items-center">
+              <img
+                src="/src/assets/images/logo.jpg"
+                alt="Logo"
+                className="w-16 h-16 mb-2"
+              />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Đăng nhập / Đăng ký
+              </h2>
+            </div>
+          }
+          visible={isLoginModalVisible}
+          onCancel={handleCancel}
+          footer={null}
+          width={400}
+          className="rounded-lg" // Thêm border-radius cho modal
         >
-          Đăng ký
-        </Button>
-        <Button
-          type="default"
-          onClick={handleLogin}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-        >
-          Đăng nhập
-        </Button>
-      </div>
-    </div>
-  )}
-</Modal>
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div className="p-6">
+              <p className="text-center text-gray-700 mb-6">
+                Vui lòng đăng nhập hoặc đăng kí tài khoản để tham gia học tập
+                cùng chúng tôi.
+              </p>
+              <div className="flex justify-between space-x-4">
+                <Button
+                  type="primary"
+                  onClick={handleRegister}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Đăng ký
+                </Button>
+                <Button
+                  type="default"
+                  onClick={handleLogin}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 focus:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Đăng nhập
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );
