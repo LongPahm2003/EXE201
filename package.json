@@ -17,6 +17,7 @@
     "antd": "^5.24.2",
     "fa-icons": "^0.2.0",
     "framer-motion": "^12.4.7",
+    "jwt-decode": "^4.0.0",
     "motion": "^12.4.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
