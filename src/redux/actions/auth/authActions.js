@@ -3,78 +3,56 @@ import { jwtDecode } from "jwt-decode";
 //  LOGIN
 export const login = (credentials) => async (dispatch) => {
   try {
-    dispatch({ type: 'LOGIN_REQUEST' });
-    const response = await fetch('https://devkid.online/api/auth/login', {
-      method: 'POST',
+    dispatch({ type: "LOGIN_REQUEST" });
+    const response = await fetch("https://devkid.online/api/auth/login", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(credentials)
+      body: JSON.stringify(credentials),
     });
 
     const data = await response.json();
     console.log("Login response:", data); 
 
     if (data.isSuccess && data.statusCode === 200) {
-   
+      // Lưu token vào localStorage
       localStorage.setItem('accessToken', data.result.data.accessToken);
       localStorage.setItem('refreshToken', data.result.data.refreshToken);
 
-     
+      // Decode token để lấy thông tin
       const decoded = jwtDecode(data.result.data.accessToken);
-      console.log("Decoded token:", decoded); 
+      console.log("Decoded token:", decoded);
 
-      try {
-        // Lấy userId từ trường iss trong decoded token
-        const userId = decoded.iss;  
-
-      
-        const userResponse = await fetch(`https://devkid.online/api/users/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${data.result.data.accessToken}`,
-            'Accept': 'application/json'
+      // Dispatch trực tiếp từ data login response
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: {
+          // Tạo object user từ thông tin trong decoded token
+          user: {
+            id: decoded.iss,
+            roleId: decoded.roleId,
+            // name: decoded.name,
+            // Các thông tin khác nếu cần
+          },
+          tokens: {
+            accessToken: data.result.data.accessToken,
+            refreshToken: data.result.data.refreshToken
           }
-        });
-
-        if (!userResponse.ok) {
-          throw new Error('Failed to fetch user data');
         }
+      });
 
-        const userData = await userResponse.json();
-        console.log("User data:", userData); // Log để xem user data
-
-        if (userData.isSuccess && userData.statusCode === 200) {
-          dispatch({
-            type: 'LOGIN_SUCCESS',
-            payload: {
-              user: userData.result.data,
-              tokens: {
-                accessToken: data.result.data.accessToken,
-                refreshToken: data.result.data.refreshToken
-              }
-            }
-          });
-
-          return { type: 'LOGIN_SUCCESS' };
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        dispatch({
-          type: 'LOGIN_FAILURE',
-          payload: 'Failed to fetch user data'
-        });
-        return { type: 'LOGIN_FAILURE' };
-      }
+      return { type: "LOGIN_SUCCESS" };
     } else {
-      throw new Error(data.message || 'Login failed');
+      throw new Error(data.message || "Login failed");
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     dispatch({
-      type: 'LOGIN_FAILURE',
-      payload: error.message
+      type: "LOGIN_FAILURE",
+      payload: error.message,
     });
-    return { type: 'LOGIN_FAILURE' };
+    return { type: "LOGIN_FAILURE" };
   }
 };
 
