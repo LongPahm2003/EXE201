@@ -2,9 +2,7 @@ import {
   FaCalendarCheck,
   FaFileInvoiceDollar,
   FaUsers,
-  FaChalkboardTeacher,
-  FaBookOpen,
-  FaGraduationCap,
+  
 } from "react-icons/fa";
 import studentImg from "../assets/images/student.jpg";
 import { motion } from "framer-motion";
