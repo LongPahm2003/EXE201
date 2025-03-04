@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { register } from "../redux/actions/auth/authActions";
 
@@ -9,8 +9,11 @@ const SignUp = () => {
     password: "",
     fullName: "",
     phoneNumber: "",
+    avatarUrl: "", 
   });
+  const [successMessage, setSuccessMessage] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,9 +23,15 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(register(formData));
+    const result = await dispatch(register(formData));
+    if (result.type === "REGISTER_SUCCESS") {
+      setSuccessMessage("Tạo tài khoản thành công! Đang chuyển hướng...");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 2000); // Chuyển hướng sau 2 giây
+    }
   };
 
   return (
@@ -56,6 +65,12 @@ const SignUp = () => {
               Register
             </Link>
           </div>
+
+          {successMessage && (
+            <div className="mb-4 text-green-500 text-center">
+              {successMessage}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -126,6 +141,24 @@ const SignUp = () => {
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
                 placeholder="Nhập số điện thoại"
                 value={formData.phoneNumber}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="avatarUrl"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Avatar URL
+              </label>
+              <input
+                type="text"
+                id="avatarUrl"
+                name="avatarUrl"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-redbg-red-500"
+                placeholder="Enter your Avatar URL"
+                value={formData.avatarUrl}
                 onChange={handleInputChange}
               />
             </div>

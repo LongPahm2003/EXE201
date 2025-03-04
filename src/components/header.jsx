@@ -80,7 +80,11 @@ const Header = () => {
 
           {user ? (
             <div className="flex items-center space-x-2">
-              <span className="text-white">Xin chào, {user.name}</span>
+              <img
+                src={user.avatarUrl}
+                alt="User Avatar"
+                className="w-8 h-8 rounded-full"
+              />
             </div>
           ) : (
             <button
