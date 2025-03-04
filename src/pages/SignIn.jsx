@@ -1,26 +1,19 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { Alert } from "antd";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../redux/actions/auth/authActions";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -41,7 +34,7 @@ const SignIn = () => {
       {/* Left side - Image */}
       <div className="w-1/2">
         <img
-          src="/src/assets/images/login.jpg"
+          src="src/assets/images/login.jpg"
           className="w-full h-screen object-cover"
           alt="Login"
         />
@@ -55,12 +48,7 @@ const SignIn = () => {
           </h2>
 
           {errorMessage && (
-            <Alert
-              message={errorMessage}
-              type="error"
-              showIcon
-              className="mb-4"
-            />
+            <div className="mb-4 text-red-500 text-center">{errorMessage}</div>
           )}
 
           {/* Login/Register Toggle */}
@@ -73,7 +61,7 @@ const SignIn = () => {
             </Link>
             <Link
               to="/signup"
-              className="flex-1 py-2 rounded-full text-redbg-red-500 text-center"
+              className="flex-1 py-2 rounded-full text-red-500 text-center"
             >
               Register
             </Link>
@@ -99,7 +87,7 @@ const SignIn = () => {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Nhập mật khẩu"
-                  className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-redbg-red-500"
+                  className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   value={formData.password}
                   onChange={handleInputChange}
                 />
@@ -113,25 +101,9 @@ const SignIn = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  className="mr-2"
-                />
-                <span className="text-sm text-gray-600">Remember me</span>
-              </label>
-              <a href="#" className="text-sm text-redbg-red-500">
-                Forgot Password ?
-              </a>
-            </div>
-
             <button
               type="submit"
-              className="w-full py-2 rounded-full bg-red-500 text-white hover:bg-black transition-colors"
+              className="w-full py-2 rounded-md bg-red-500 text-white hover:bg-black transition-colors"
             >
               Login
             </button>

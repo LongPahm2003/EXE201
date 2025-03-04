@@ -1,62 +1,106 @@
 import { jwtDecode } from "jwt-decode";
 
-//  LOGIN
+//  ============================LOGIN
+export const initAuth = () => (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (accessToken && user) {
+      const decoded = jwtDecode(accessToken);
+      const currentTime = Date.now() / 1000;
+
+      if (decoded.exp < currentTime) {
+        console.warn("Access token expired, consider refreshing.");
+        dispatch(logout());
+        return;
+      }
+
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: { user, tokens: { accessToken, refreshToken } },
+      });
+    }
+  } catch (error) {
+    console.error("Error initializing auth:", error);
+  }
+};
+
 export const login = (credentials) => async (dispatch) => {
   try {
     dispatch({ type: "LOGIN_REQUEST" });
-    const response = await fetch("https://devkid.online/api/auth/login", {
+
+    const response = await fetch(`https://devkid.online/api/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
 
     const data = await response.json();
-    console.log("Login response:", data); 
+    console.log("Login response:", data);
 
-    if (data.isSuccess && data.statusCode === 200) {
-      // Lưu token vào localStorage
-      localStorage.setItem('accessToken', data.result.data.accessToken);
-      localStorage.setItem('refreshToken', data.result.data.refreshToken);
-
-      // Decode token để lấy thông tin
-      const decoded = jwtDecode(data.result.data.accessToken);
-      console.log("Decoded token:", decoded);
-
-      // Dispatch trực tiếp từ data login response
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: {
-          // Tạo object user từ thông tin trong decoded token
-          user: {
-            id: decoded.iss,
-            roleId: decoded.roleId,
-            // name: decoded.name,
-            // Các thông tin khác nếu cần
-          },
-          tokens: {
-            accessToken: data.result.data.accessToken,
-            refreshToken: data.result.data.refreshToken
-          }
-        }
-      });
-
-      return { type: "LOGIN_SUCCESS" };
-    } else {
+    if (!data.isSuccess || data.statusCode !== 200) {
       throw new Error(data.message || "Login failed");
     }
-  } catch (error) {
-    console.error("Login error:", error);
+
+    const { accessToken, refreshToken } = data.result.data;
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+
+    const decoded = jwtDecode(accessToken);
+    console.log("Decoded token:", decoded);
+
+    const userData = await fetchUser(decoded.iss, accessToken);
+    if (!userData) throw new Error("Failed to fetch user data");
+
+    localStorage.setItem("user", JSON.stringify(userData));
+
     dispatch({
-      type: "LOGIN_FAILURE",
-      payload: error.message,
+      type: "LOGIN_SUCCESS",
+      payload: { user: userData, tokens: { accessToken, refreshToken } },
     });
+
+    return { type: "LOGIN_SUCCESS" };
+  } catch (error) {
+    console.error("Authentication error:", error);
+    dispatch({ type: "LOGIN_FAILURE", payload: error.message });
     return { type: "LOGIN_FAILURE" };
   }
 };
 
-// REGISTER
+export const fetchUser = async (userId, token) => {
+  try {
+    const response = await fetch(`https://devkid.online/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const userData = await response.json();
+    console.log("User data:", userData);
+
+    if (!userData.isSuccess || userData.statusCode !== 200) {
+      return null;
+    }
+
+    return userData.result.data;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+};
+
+export const logout = () => (dispatch) => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+
+  dispatch({ type: "LOGOUT" });
+};
+
+//============================REGISTER
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: "REGISTER_REQUEST" });
   try {
