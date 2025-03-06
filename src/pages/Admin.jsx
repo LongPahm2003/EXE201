@@ -5,7 +5,13 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
 
   const menuItems = [
-    "Dashboard", "Courses", "Students", "Instructors", "Sales & Revenue", "Reports", "Settings"
+    "Dashboard",
+    "Courses",
+    "Students",
+    "Instructors",
+    "Sales & Revenue",
+    "Reports",
+    "Settings",
   ];
 
   return (
@@ -17,7 +23,11 @@ const Admin = () => {
           {menuItems.map((item) => (
             <li
               key={item}
-              className={`cursor-pointer p-2 rounded-lg ${activeTab === item ? "text-blue-500 font-semibold bg-gray-200" : ""}`}
+              className={`cursor-pointer p-2 rounded-lg ${
+                activeTab === item
+                  ? "text-blue-500 font-semibold bg-gray-200"
+                  : ""
+              }`}
               onClick={() => setActiveTab(item)}
             >
               {item}
@@ -25,7 +35,11 @@ const Admin = () => {
           ))}
         </ul>
         <div className="absolute bottom-5 flex items-center space-x-3">
-          <img src="/avatar.png" alt="Admin" className="w-10 h-10 rounded-full" />
+          <img
+            src="/avatar.png"
+            alt="Admin"
+            className="w-10 h-10 rounded-full"
+          />
           <span>Alex Johnson</span>
         </div>
       </aside>
@@ -36,7 +50,11 @@ const Admin = () => {
         <header className="flex justify-between items-center">
           <div className="relative w-80">
             <Search className="absolute left-3 top-2.5 text-gray-500" />
-            <input type="text" placeholder="Search..." className="w-full pl-10 py-2 border rounded-lg" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 py-2 border rounded-lg"
+            />
           </div>
           <div className="flex items-center space-x-4">
             <Bell className="text-gray-500" />

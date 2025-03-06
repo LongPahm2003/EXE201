@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router";
 
 //  ============================LOGIN
 export const initAuth = () => (dispatch) => {
@@ -27,7 +28,7 @@ export const initAuth = () => (dispatch) => {
   }
 };
 
-export const login = (credentials) => async (dispatch) => {
+export const login = (credentials, navigate) => async (dispatch) => {
   try {
     dispatch({ type: "LOGIN_REQUEST" });
 
@@ -60,6 +61,16 @@ export const login = (credentials) => async (dispatch) => {
       type: "LOGIN_SUCCESS",
       payload: { user: userData, tokens: { accessToken, refreshToken } },
     });
+
+    // Điều hướng dựa trên roleId
+    console.log("User roleId:", userData.roleId);
+    if (userData.roleId === 1) {
+      console.log("Navigating to /admin");
+      navigate("/admin");
+    } else if (userData.roleId === 3) {
+      console.log("Navigating to /");
+      navigate("/");
+    }
 
     return { type: "LOGIN_SUCCESS" };
   } catch (error) {
