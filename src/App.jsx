@@ -9,11 +9,13 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import CourseDetail from "./pages/CourseDetail";
 import Blog from "./pages/Blog";
-import Admin from "./pages/Admin";
+
 import Checkout from "./pages/Checkout";
 import AboutUs from "./pages/AboutUs";
 import Cart from "./pages/Cart";
 import { initAuth } from "./redux/actions/auth/authActions";
+import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 
 function App() {
   const dispatch = useDispatch();
@@ -21,16 +23,13 @@ function App() {
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    dispatch(initAuth()); // Khởi tạo Redux từ localStorage
+    dispatch(initAuth());
   }, [dispatch]);
-  useEffect(() => {
-    if (user) {
-      const currentPath = window.location.pathname;
-      if (currentPath === "/signin" || currentPath === "/signup") {
-        navigate("/");
-      }
-    }
-  }, [user, navigate]);
+  // useEffect(() => {
+  //   if (user) {
+  //     navigate("/");
+  //   }
+  // }, [user, navigate]);
 
   return (
     <Routes>
@@ -42,11 +41,11 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/cart" element={<Cart />} />
-
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
+      <Route path="/admin" element={<Admin />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
     </Routes>
   );
 }

@@ -1,10 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Modal, Button, Spin } from "antd";
-import { useSelector } from "react-redux";
+import { Modal, Button, Spin, Dropdown, Menu } from "antd";
+import { useSelector, useDispatch } from "react-redux"; // Thêm useDispatch
+import {
+  DownOutlined,
+  LogoutOutlined,
+  QuestionCircleOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { logout } from "../redux/actions/auth/authActions";
 
 const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Thêm dispatch
   const user = useSelector((state) => state.auth.user);
 
   const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
@@ -34,6 +43,31 @@ const Header = () => {
     }, 1000);
   };
 
+  // Hàm xử lý logout
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/signin");
+  };
+
+  // Menu cho dropdown
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="0" icon={<UserOutlined />}>
+        <Link to="/profile">Profile</Link>
+      </Menu.Item>
+      <Menu.Item key="1" icon={<LogoutOutlined />}>
+        <a onClick={handleLogout}>Logout</a>
+      </Menu.Item>
+      {/* Adding two new items with icons as requested */}
+      <Menu.Item key="2" icon={<SettingOutlined />}>
+        <Link to="/settings">Settings</Link>
+      </Menu.Item>
+      <Menu.Item key="3" icon={<QuestionCircleOutlined />}>
+        <Link to="/help">Help</Link>
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <div className="bg-[#49BBBD] shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
@@ -47,10 +81,7 @@ const Header = () => {
         </div>
 
         {/* Navigation */}
-        <nav
-          className="hidden md:flex space-x-16 text-white
-         font-medium"
-        >
+        <nav className="hidden md:flex space-x-16 text-white font-medium">
           <a href="/" className="hover:text-gray-900">
             Home
           </a>
@@ -79,13 +110,16 @@ const Header = () => {
           </Link>
 
           {user ? (
-            <div className="flex items-center space-x-2">
-              <img
-                src={user.avatarUrl}
-                alt="User Avatar"
-                className="w-8 h-8 rounded-full"
-              />
-            </div>
+            <Dropdown overlay={userMenu} trigger={["click"]}>
+              <div className="flex items-center space-x-2 cursor-pointer">
+                <img
+                  src={user.avatarUrl}
+                  alt="User Avatar"
+                  className="w-8 h-8 rounded-full"
+                />
+                <DownOutlined className="text-white" />
+              </div>
+            </Dropdown>
           ) : (
             <button
               onClick={showLoginModal}
@@ -114,7 +148,7 @@ const Header = () => {
           onCancel={handleCancel}
           footer={null}
           width={400}
-          className="rounded-lg" // Thêm border-radius cho modal
+          className="rounded-lg"
         >
           {loading ? (
             <div className="flex justify-center items-center h-40">

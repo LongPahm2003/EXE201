@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../redux/actions/auth/authActions";
 
@@ -18,7 +17,7 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await dispatch(login(formData));
+    const result = await dispatch(login(formData, navigate));
 
     if (result && result.type === "LOGIN_SUCCESS") {
       navigate("/");
