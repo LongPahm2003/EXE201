@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -19,8 +19,8 @@ import Profile from "./pages/Profile";
 
 function App() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+  // const navigate = useNavigate();
+  // const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     dispatch(initAuth());

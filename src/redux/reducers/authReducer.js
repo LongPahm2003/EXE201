@@ -8,13 +8,6 @@ const initialState = {
 
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "INIT_AUTH":
-      return {
-        ...state,
-        user: JSON.parse(localStorage.getItem("user")) || null,
-        tokens: JSON.parse(localStorage.getItem("tokens")) || null,
-      };
-
     case "REGISTER_REQUEST":
     case "LOGIN_REQUEST":
     case "FETCH_USERS_REQUEST":
@@ -22,22 +15,12 @@ const authReducer = (state = initialState, action) => {
 
     case "REGISTER_SUCCESS":
     case "LOGIN_SUCCESS":
-      console.log("Reducer receiving LOGIN_SUCCESS with payload:", action.payload);
+      const { user, tokens } = action.payload;
 
-      const newTokens = {
-        accessToken: action.payload.tokens.accessToken,
-        refreshToken: action.payload.tokens.refreshToken,
-      };
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("tokens", JSON.stringify(tokens));
 
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
-      localStorage.setItem("tokens", JSON.stringify(newTokens));
-
-      return {
-        ...state,
-        loading: false,
-        user: action.payload.user,
-        tokens: newTokens,
-      };
+      return { ...state, loading: false, user, tokens };
 
     case "FETCH_USERS_SUCCESS":
       return { ...state, loading: false, users: action.payload };
@@ -51,12 +34,7 @@ const authReducer = (state = initialState, action) => {
       localStorage.removeItem("user");
       localStorage.removeItem("tokens");
 
-      return {
-        ...state,
-        user: null,
-        tokens: null,
-        loading: false,
-      };
+      return { ...state, user: null, tokens: null, loading: false };
 
     default:
       return state;
