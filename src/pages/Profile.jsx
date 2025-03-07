@@ -1,25 +1,16 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { toast } from "react-hot-toast";
-
-import { initAuth } from "../redux/actions/auth/authActions";
+import { updateUser } from "../redux/actions/auth/authActions";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { user, tokens } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     avatarUrl: "",
   });
-
-  useEffect(() => {
-    console.log("User from Redux:", user, "Tokens:", tokens);
-    dispatch(initAuth());
-  }, [dispatch]);
 
   useEffect(() => {
     if (user) {
@@ -29,6 +20,7 @@ const Profile = () => {
         avatarUrl: user.avatarUrl || "https://via.placeholder.com/50",
       });
     }
+    console.log(user);
   }, [user]);
 
   const handleChange = (e) => {
@@ -39,50 +31,9 @@ const Profile = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const accessToken = tokens?.accessToken;
-      if (!accessToken) {
-        console.error("No access token found");
-        toast.error("No access token found!", {
-          duration: 3000,
-          position: "top-right",
-        });
-        return;
-      }
-
-      const decoded = jwtDecode(accessToken);
-      const userId = decoded.iss;
-
-      console.log("Sending update with userId:", userId, "data:", formData);
-
-      await axios.put(
-        `https://devkid.online/api/users/${userId}`,
-        {
-          name: formData.name,
-          avatarUrl: formData.avatarUrl,
-          email: formData.email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      toast.success("Update successfully!", {
-        duration: 3000,
-        position: "top-right",
-      });
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again!", {
-        duration: 3000,
-        position: "top-right",
-      });
-    }
+    dispatch(updateUser(formData));
   };
 
   return (
@@ -156,8 +107,9 @@ const Profile = () => {
         <button
           type="submit"
           className="w-full bg-black text-white p-2 rounded-md text-sm hover:bg-gray-800"
+          disabled={loading}
         >
-          Update
+          {loading ? "Updating..." : "Update"}
         </button>
       </form>
     </div>

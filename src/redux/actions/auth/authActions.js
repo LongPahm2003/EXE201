@@ -1,8 +1,8 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-hot-toast";
 
-
-//  ============================LOGIN
+// ============================LOGIN
 export const initAuth = () => (dispatch) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
@@ -29,7 +29,7 @@ export const initAuth = () => (dispatch) => {
   }
 };
 
-export const login = (credentials, navigate) => async (dispatch) => {
+export const login = (credentials) => async (dispatch) => {
   try {
     dispatch({ type: "LOGIN_REQUEST" });
 
@@ -62,16 +62,6 @@ export const login = (credentials, navigate) => async (dispatch) => {
       type: "LOGIN_SUCCESS",
       payload: { user: userData, tokens: { accessToken, refreshToken } },
     });
-
-    // Điều hướng dựa trên roleId
-    console.log("User roleId:", userData.roleId);
-    if (userData.roleId === 1) {
-      console.log("Navigating to /admin");
-      navigate("/admin");
-    } else if (userData.roleId === 3) {
-      console.log("Navigating to /");
-      navigate("/");
-    }
 
     return { type: "LOGIN_SUCCESS" };
   } catch (error) {
@@ -115,15 +105,14 @@ export const logout = () => {
         return;
       }
 
-    
       const url = `https://devkid.online/api/auth/logout?token=${encodeURIComponent(refreshToken)}`;
 
       await axios.post(
         url,
-        {}, 
+        {},
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`, 
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         }
@@ -141,6 +130,7 @@ export const logout = () => {
     }
   };
 };
+
 //============================REGISTER
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: "REGISTER_REQUEST" });
@@ -162,6 +152,7 @@ export const register = (formData) => async (dispatch) => {
     dispatch({ type: "REGISTER_FAILURE", payload: error.message });
   }
 };
+
 // GET USERS
 export const fetchUsers = () => async (dispatch) => {
   dispatch({ type: "FETCH_USERS_REQUEST" });
@@ -175,5 +166,51 @@ export const fetchUsers = () => async (dispatch) => {
     }
   } catch (error) {
     dispatch({ type: "FETCH_USERS_FAILURE", payload: error.message });
+  }
+};
+
+
+
+
+// UPADTE USERUSER
+export const UPDATE_USER_REQUEST = "UPDATE_USER_REQUEST";
+export const UPDATE_USER_SUCCESS = "UPDATE_USER_SUCCESS";
+export const UPDATE_USER_FAILURE = "UPDATE_USER_FAILURE";
+
+export const updateUser = (userData) => async (dispatch, getState) => {
+  dispatch({ type: UPDATE_USER_REQUEST });
+
+  try {
+    const { auth } = getState();
+    const accessToken = auth?.tokens?.accessToken;
+    
+    if (!accessToken) {
+      throw new Error("No access token found");
+    }
+
+    const decoded = jwtDecode(accessToken);
+    const userId = decoded.iss;
+
+    await axios.put(
+      `https://devkid.online/api/users/${userId}`,
+      userData,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Gọi API để lấy dữ liệu user mới nhất
+    const response = await axios.get(`https://devkid.online/api/users/${userId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    dispatch({ type: UPDATE_USER_SUCCESS, payload: response.data });
+    toast.success("Update successfully!", { duration: 3000, position: "top-right" });
+  } catch (error) {
+    dispatch({ type: UPDATE_USER_FAILURE, payload: error.message });
+    toast.error("Failed to update profile. Please try again!", { duration: 3000, position: "top-right" });
   }
 };

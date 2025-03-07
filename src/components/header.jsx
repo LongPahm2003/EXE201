@@ -1,19 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Modal, Button, Spin, Dropdown, Menu } from "antd";
-import { useSelector, useDispatch } from "react-redux"; // Thêm useDispatch
-import {
-  DownOutlined,
-  LogoutOutlined,
-  QuestionCircleOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { useSelector, useDispatch } from "react-redux";
+import { DownOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { logout } from "../redux/actions/auth/authActions";
 
 const Header = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Thêm dispatch
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
@@ -42,6 +36,7 @@ const Header = () => {
       navigate("/signin");
     }, 1000);
   };
+
   const handleLogout = async () => {
     await dispatch(logout());
     navigate("/signin");
@@ -56,13 +51,12 @@ const Header = () => {
       <Menu.Item key="1" icon={<LogoutOutlined />}>
         <a onClick={handleLogout}>Logout</a>
       </Menu.Item>
-      {/* Adding two new items with icons as requested */}
-      <Menu.Item key="2" icon={<SettingOutlined />}>
+      {/* <Menu.Item key="2" icon={<SettingOutlined />}>
         <Link to="/settings">Settings</Link>
       </Menu.Item>
       <Menu.Item key="3" icon={<QuestionCircleOutlined />}>
         <Link to="/help">Help</Link>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 
@@ -73,31 +67,31 @@ const Header = () => {
         <div className="flex items-center">
           <img
             src="/src/assets/images/logo.jpg"
-            className="w-full h-16 rounded-lg "
+            className="w-full h-16 rounded-lg"
             alt="Dev Kid Logo"
           />
         </div>
 
-        {/* Navigation */}
+        {/* Điều hướng */}
         <nav className="hidden md:flex space-x-16 text-white font-medium">
-          <a href="/" className="hover:text-gray-900">
+          <Link to="/" className="hover:text-gray-900">
             Home
-          </a>
-          <a href="/course" className="hover:text-gray-900">
+          </Link>
+          <Link to="/course" className="hover:text-gray-900">
             Courses
-          </a>
-          <a href="careers" className="hover:text-gray-900">
+          </Link>
+          <Link to="/career" className="hover:text-gray-900">
             Careers
-          </a>
-          <a href="/blog" className="hover:text-gray-900">
+          </Link>
+          <Link to="/blog" className="hover:text-gray-900">
             Blog
-          </a>
-          <a href="aboutUs" className="hover:text-gray-900">
+          </Link>
+          <Link to="/aboutus" className="hover:text-gray-900">
             About Us
-          </a>
+          </Link>
         </nav>
 
-        {/* User Profile and Cart */}
+        {/* Hồ sơ người dùng và giỏ hàng */}
         <div className="flex items-center space-x-4">
           <Link to="/cart" className="text-white hover:text-gray-900">
             <img
@@ -128,7 +122,7 @@ const Header = () => {
           )}
         </div>
 
-        {/* Login Modal */}
+        {/* Modal đăng nhập */}
         <Modal
           title={
             <div className="flex flex-col items-center">
