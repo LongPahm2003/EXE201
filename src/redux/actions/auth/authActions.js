@@ -1,5 +1,6 @@
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router";
+
 
 //  ============================LOGIN
 export const initAuth = () => (dispatch) => {
@@ -103,14 +104,43 @@ export const fetchUser = async (userId, token) => {
   }
 };
 
-export const logout = () => (dispatch) => {
-  localStorage.removeItem("user");
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
+export const logout = () => {
+  return async (dispatch) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
 
-  dispatch({ type: "LOGOUT" });
+      if (!refreshToken || !accessToken) {
+        console.error("No tokens found");
+        return;
+      }
+
+    
+      const url = `https://devkid.online/api/auth/logout?token=${encodeURIComponent(refreshToken)}`;
+
+      await axios.post(
+        url,
+        {}, 
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, 
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Xóa dữ liệu khỏi localStorage
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+
+      dispatch({ type: "LOGOUT" });
+      console.log("Logout successful!");
+    } catch (error) {
+      console.error("Logout error:", error.response?.data || error.message);
+    }
+  };
 };
-
 //============================REGISTER
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: "REGISTER_REQUEST" });

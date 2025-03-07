@@ -42,10 +42,8 @@ const Header = () => {
       navigate("/signin");
     }, 1000);
   };
-
-  // Hàm xử lý logout
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate("/signin");
   };
 
