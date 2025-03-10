@@ -2,7 +2,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Modal, Button, Spin, Dropdown, Menu } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { DownOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  BarChartOutlined,
+  DownOutlined,
+  LogoutOutlined,
+  QuestionCircleOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { logout } from "../redux/actions/auth/authActions";
 
 const Header = () => {
@@ -51,14 +57,16 @@ const Header = () => {
       <Menu.Item key="1" icon={<LogoutOutlined />}>
         <a onClick={handleLogout}>Logout</a>
       </Menu.Item>
-      {/* <Menu.Item key="2" icon={<SettingOutlined />}>
-        <Link to="/settings">Settings</Link>
-      </Menu.Item>
-      <Menu.Item key="3" icon={<QuestionCircleOutlined />}>
-        <Link to="/help">Help</Link>
-      </Menu.Item> */}
+      {user?.roleId === 1 && (
+        <Menu.Item key="2" icon={<BarChartOutlined />}>
+          <Link to="/admin">Admin Dashboard</Link>
+        </Menu.Item>
+      )}
     </Menu>
   );
+
+  // Kiểm tra nếu là admin thì vô hiệu hóa các liên kết
+  const isAdmin = user?.roleId === 1;
 
   return (
     <div className="bg-[#49BBBD] shadow-sm">
@@ -74,21 +82,33 @@ const Header = () => {
 
         {/* Điều hướng */}
         <nav className="hidden md:flex space-x-16 text-white font-medium">
-          <Link to="/" className="hover:text-gray-900">
-            Home
-          </Link>
-          <Link to="/course" className="hover:text-gray-900">
-            Courses
-          </Link>
-          <Link to="/career" className="hover:text-gray-900">
-            Careers
-          </Link>
-          <Link to="/blog" className="hover:text-gray-900">
-            Blog
-          </Link>
-          <Link to="/aboutus" className="hover:text-gray-900">
-            About Us
-          </Link>
+          {isAdmin ? (
+            <>
+              <span className="text-white cursor-not-allowed">Home</span>
+              <span className="text-white cursor-not-allowed">Courses</span>
+              <span className="text-white cursor-not-allowed">Careers</span>
+              <span className="text-white cursor-not-allowed">Blog</span>
+              <span className="text-white cursor-not-allowed">About Us</span>
+            </>
+          ) : (
+            <>
+              <Link to="/" className="hover:text-gray-900">
+                Home
+              </Link>
+              <Link to="/course" className="hover:text-gray-900">
+                Courses
+              </Link>
+              <Link to="/career" className="hover:text-gray-900">
+                Careers
+              </Link>
+              <Link to="/blog" className="hover:text-gray-900">
+                Blog
+              </Link>
+              <Link to="/aboutus" className="hover:text-gray-900">
+                About Us
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Hồ sơ người dùng và giỏ hàng */}
