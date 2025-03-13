@@ -8,7 +8,7 @@ export const fetchAdCourses = (accessToken) => async (dispatch) => {
   dispatch({ type: FETCH_COURSES_AD_REQUEST });
 
   try {
-    const response = await axios.get("https://devkid.online/api/courses/admin", {
+    const response = await axios.get("https://devkid.online/api/courses/detail", {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'accept': '*/*'
