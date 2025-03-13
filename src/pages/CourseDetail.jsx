@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFacebookF,
@@ -7,26 +7,30 @@ import {
   faTelegram,
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCourseDetail } from "../redux/actions/courseActions";
+import { motion } from "framer-motion";
 
 const CourseDetail = () => {
-  // Dữ liệu mẫu - bạn có thể thay thế bằng dữ liệu API thực tế sau
-  const course = {
-    title: "Khóa học Scratch cho người mới bắt đầu",
-    description: "Học lập trình qua việc tạo game và hoạt ảnh",
-    imageUrl: "/src/assets/images/course3.jpg",
-    price: 1190000,
-    originalPrice: 2380000,
-    discount: "Giảm 50%",
-    timeLeft: "Còn 11 giờ với mức giá này",
-    features: [
-      "Đảm bảo hoàn tiền",
-      "Truy cập trên mọi thiết bị",
-      "Chứng chỉ hoàn thành",
-      "33 Bài học",
-    ],
-  };
+  const { id } = useParams(); // Get the course ID from the URL
+  const dispatch = useDispatch();
 
+  // Select data from Redux store
+  const courseDetail = useSelector(
+    (state) => state.courses?.courseDetail?.result?.data || null
+  );
+  const loading = useSelector((state) => state.courses?.loading || false); // Use centralized loading
+  const error = useSelector((state) => state.courses?.error || null);
+
+  // Fetch course details when the component mounts
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchCourseDetail(id));
+    }
+  }, [dispatch, id]);
+
+  // Dummy feedbacks (since the API might not provide this)
   const feedbacks = [
     {
       id: 1,
@@ -46,52 +50,197 @@ const CourseDetail = () => {
     },
   ];
 
+  // Enhanced loading state with animation
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.5,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+          className="text-4xl text-teal-500"
+        >
+          Đang tải chi tiết khóa học...
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Error state with animation
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-red-500 text-2xl font-semibold"
+        >
+          Lỗi: {error}
+        </motion.p>
+      </div>
+    );
+  }
+
+  // If no course data is found
+  if (!courseDetail) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-gray-600 text-2xl font-semibold"
+        >
+          Không tìm thấy khóa học.
+        </motion.p>
+      </div>
+    );
+  }
+
+  // Map API data to your UI structure
+  const course = {
+    title: courseDetail.name || "Khóa học không có tiêu đề",
+    description: courseDetail.description || "Không có mô tả",
+    imageUrl: courseDetail.imageUrl || "/src/assets/images/course3.jpg",
+    price: courseDetail.price || 0,
+    originalPrice: courseDetail.price * 2 || 2380000,
+    discount: courseDetail.discount || "Giảm 50%",
+    timeLeft: courseDetail.timeLeft || "Còn 11 giờ với mức giá này",
+    features: courseDetail.features || [
+      "Kiến thức lập trình cơ bản",
+      "Đảm bảo hoàn tiền",
+      "Truy cập trên mọi thiết bị",
+      "Chứng chỉ hoàn thành",
+    ],
+  };
+
+  // Animation variants
+  const heroVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
+  };
+
+  const tabVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
+    }),
+  };
+
+  const feedbackVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: "easeOut" },
+    },
+    hover: { scale: 1.02, transition: { duration: 0.3 } },
+  };
+
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section với ảnh khóa học */}
-      <div className="relative h-[300px] w-full">
+      <motion.div
+        variants={heroVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative h-[300px] w-full"
+      >
         <img
           src={course.imageUrl}
           alt={course.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent"
+        >
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-3xl font-bold text-white mb-2"
+            >
               {course.title}
-            </h1>
-            <p className="text-white/90">{course.description}</p>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-white/90"
+            >
+              {course.description}
+            </motion.p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs Tổng quan */}
-        <div className="flex gap-4 mb-8">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          className="flex gap-4 mb-8"
+        >
           {["Tổng quan", "Nội dung", "Đánh giá", "Thảo luận"].map(
             (tab, index) => (
-              <button
+              <motion.button
                 key={index}
+                custom={index}
+                variants={tabVariants}
                 className={`px-4 py-2 rounded-full ${
                   index === 3 ? "bg-teal-500 text-white" : "bg-gray-200"
                 }`}
               >
                 {tab}
-              </button>
+              </motion.button>
             )
           )}
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Cột trái - Thông tin khóa học và Feedback */}
-          <div className="md:col-span-2">
-            {/* Phần Feedback */}
+          <motion.div
+            variants={feedbackVariants}
+            initial="hidden"
+            animate="visible"
+            className="md:col-span-2"
+          >
             <div className="bg-blue-50 p-6 rounded-lg mb-8">
               <h3 className="text-xl font-bold mb-6">Nhận xét từ học viên</h3>
-              <div className="space-y-6">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
+                className="space-y-6"
+              >
                 {feedbacks.map((feedback) => (
-                  <div
+                  <motion.div
                     key={feedback.id}
+                    variants={feedbackVariants}
                     className="pb-6 border-b border-gray-200 last:border-0"
                   >
                     <div className="flex items-center gap-3 mb-2">
@@ -108,14 +257,20 @@ const CourseDetail = () => {
                       </span>
                     </div>
                     <p className="text-gray-600">{feedback.comment}</p>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Cột phải - Chi tiết khóa học */}
-          <div className="md:col-span-1">
+          <motion.div
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            className="md:col-span-1"
+          >
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-4">
               <div className="mb-4">
                 <div className="flex items-center gap-2">
@@ -201,7 +356,7 @@ const CourseDetail = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

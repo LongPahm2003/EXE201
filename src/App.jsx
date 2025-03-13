@@ -17,15 +17,15 @@ import CourseDetail from "./pages/CourseDetail";
 function App() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+  // useEffect(() => {
+  //   const storedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (storedUser?.roleId === 1) {
-      navigate("/admin");
-    } else if (storedUser) {
-      navigate("/");
-    }
-  }, []);
+  //   if (storedUser?.roleId === 1) {
+  //     navigate("/admin");
+  //   } else if (storedUser) {
+  //     navigate("/");
+  //   }
+  // }, []);
 
   return (
     <Routes>
@@ -34,7 +34,7 @@ function App() {
         <Route path="/course" element={<Courses />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/career" element={<Career />} />
-        <Route path="/coursedetail" element={<CourseDetail />} />
+        <Route path="/course/:id" element={<CourseDetail />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/cart" element={<Cart />} />
