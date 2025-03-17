@@ -1,14 +1,23 @@
-import { UPDATE_USER_FAILURE, UPDATE_USER_REQUEST, UPDATE_USER_SUCCESS } from "../actions/auth/authActions";
+import {
+  UPDATE_USER_FAILURE,
+  UPDATE_USER_REQUEST,
+  UPDATE_USER_SUCCESS,
+} from "../actions/auth/authActions";
 
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
-  tokens: JSON.parse(localStorage.getItem("tokens")) || null,
+  tokens: JSON.parse(localStorage.getItem("tokens")) || {
+    accessToken: null,
+    refreshToken: null,
+  },
   loading: false,
   error: null,
   users: [],
 };
 
 const authReducer = (state = initialState, action) => {
+  console.log("Action:", action);
+  console.log("Previous State:", state);
   switch (action.type) {
     case "REGISTER_REQUEST":
     case "LOGIN_REQUEST":
@@ -23,13 +32,16 @@ const authReducer = (state = initialState, action) => {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("tokens", JSON.stringify(tokens));
 
-      return {
+      const newState = {
         ...state,
         loading: false,
         user,
         tokens,
-        error: null, // Đảm bảo xóa error khi đăng nhập thành công
+        error: null,
       };
+
+      console.log("Updated State:", newState);
+      return newState;
     }
 
     case "FETCH_USERS_SUCCESS":
@@ -50,15 +62,15 @@ const authReducer = (state = initialState, action) => {
         users: state.users, // Giữ lại danh sách users nếu cần
       };
 
-      case UPDATE_USER_REQUEST:
+    case UPDATE_USER_REQUEST:
       return { ...state, loading: true, error: null };
-      case UPDATE_USER_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          user: action.payload?.result?.data || state.user, // Kiểm tra dữ liệu API
-        };
-      
+    case UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        user: action.payload?.result?.data || state.user, // Kiểm tra dữ liệu API
+      };
+
     case UPDATE_USER_FAILURE:
       return { ...state, loading: false, error: action.payload };
 

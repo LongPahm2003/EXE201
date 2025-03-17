@@ -10,13 +10,23 @@ const Checkout = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const tokens = user?.tokens; // Kiểm tra token
+
+  const TestComponent = () => {
+    const authState = useSelector((state) => state.auth);
+    console.log("Auth State:", authState);
+    return null;
+  };
+
+  console.log("Token:", tokens);
+  console.log("Tokens from localStorage:", localStorage.getItem("tokens"));
 
   const course = location.state?.course;
   const totalPrice = useMemo(() => Number(course?.price || 0), [course]);
 
   const handlePayment = async () => {
     setLoading(true);
-    dispatch(processPayment(course.id, totalPrice, user.id));
+    await dispatch(processPayment(course.id, totalPrice, user.id));
     setLoading(false);
   };
 
