@@ -7,7 +7,7 @@ import {
   faTelegram,
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseDetail } from "../redux/actions/courseActions";
 import { motion } from "framer-motion";
@@ -15,6 +15,12 @@ import { motion } from "framer-motion";
 const CourseDetail = () => {
   const { id } = useParams(); // Get the course ID from the URL
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const handleBuyNow = () => {
+    navigate("/checkout", { state: { course: courseDetail } }); // Truyền danh sách chứa khóa học
+  };
 
   // Select data from Redux store
   const courseDetail = useSelector(
@@ -291,12 +297,12 @@ const CourseDetail = () => {
                 <p className="text-red-500 text-sm">{course.timeLeft}</p>
               </div>
 
-              <Link
-                to="/checkout"
+              <button
+                onClick={handleBuyNow}
                 className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg font-semibold mb-6 hover:bg-teal-600"
               >
                 Mua Ngay
-              </Link>
+              </button>
 
               <div className="mb-6 mt-6">
                 <h3 className="font-semibold mb-4">Khóa học bao gồm</h3>
