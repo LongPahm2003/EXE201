@@ -54,6 +54,9 @@ const Header = () => {
       <Menu.Item key="0" icon={<UserOutlined />}>
         <Link to="/profile">Profile</Link>
       </Menu.Item>
+      <Menu.Item key="2" icon={<BarChartOutlined />}>
+        <Link to="/mycourses">My Courses</Link>
+      </Menu.Item>
       <Menu.Item key="1" icon={<LogoutOutlined />}>
         <a onClick={handleLogout}>Logout</a>
       </Menu.Item>

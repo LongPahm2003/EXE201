@@ -13,6 +13,9 @@ import AboutUs from "./pages/AboutUs";
 import Cart from "./pages/Cart";
 import Career from "./pages/Career";
 import CourseDetail from "./pages/CourseDetail";
+import MyCourses from "./pages/MyCourses";
+import Chapter from "./pages/Chapter";
+import ChapterDetail from "./pages/ChapterDetail";
 
 function App() {
   const navigate = useNavigate();
@@ -40,6 +43,9 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/mycourses" element={<MyCourses />} />
+        <Route path="/courses/:courseId" element={<Chapter />} />
+        <Route path="/chapters/:chapterId" element={<ChapterDetail />} />
       </Route>
 
       <Route path="/signin" element={<SignIn />} />
