@@ -16,6 +16,7 @@ import CourseDetail from "./pages/CourseDetail";
 import MyCourses from "./pages/MyCourses";
 import Chapter from "./pages/Chapter";
 import ChapterDetail from "./pages/ChapterDetail";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ function App() {
         <Route path="/mycourses" element={<MyCourses />} />
         <Route path="/courses/:courseId" element={<Chapter />} />
         <Route path="/chapters/:chapterId" element={<ChapterDetail />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Route>
 
       <Route path="/signin" element={<SignIn />} />
