@@ -19,9 +19,9 @@ export const processPayment = (courseId) => async (dispatch) => {
 
     console.log("Response:", response.data);
 
-    if (response.status === 200 && response.data?.result?.data) {
+    if (response.status === 200 && response.data?.result?.data.paymentLink) {
       console.log("Redirecting to:", response.data.result.data);
-      window.location.href = response.data.result.data;
+      window.location.href = response.data.result.data.paymentLink;
       // dispatch({ type: "PAYMENT_SUCCESS" });
     } else {
       throw new Error("Không thể tạo đơn hàng.");
