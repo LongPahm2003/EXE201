@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdCourses } from "../redux/actions/auth/courseActionAdmin";
 import { useNavigate } from "react-router";
 import { Image } from "antd";
+import { fetchOrders } from "../redux/actions/orderActions";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -18,15 +19,27 @@ const Admin = () => {
   const coursesAdData = useSelector(
     (state) => state.adminCourse?.courses?.result?.data || []
   );
+  const orders = useSelector((state) => state.order.orders);
+  const loadingOrders = useSelector((state) => state.order.loading);
+  const errorOrders = useSelector((state) => state.order.error);
 
   useEffect(() => {
-    if (user && accessToken) {
-      dispatch(fetchAdCourses(accessToken))
-        .then(() => console.log("Fetch courses completed"))
-        .catch((err) => console.error("Fetch courses error:", err));
-    } else if (!user || !accessToken) {
+    if (!user || !accessToken) {
       navigate("/login");
+      return;
     }
+
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchAdCourses(accessToken));
+        await dispatch(fetchOrders(accessToken)); // 👈 Thêm dòng này nếu bạn đã có action fetchOrders
+        console.log("Fetch data completed");
+      } catch (err) {
+        console.error("Fetch data error:", err);
+      }
+    };
+
+    fetchData();
   }, [dispatch, user, accessToken, navigate]);
 
   const menuItems = [
@@ -36,6 +49,7 @@ const Admin = () => {
     "Instructors",
     "Sales & Revenue",
     "Reports",
+    "Payment History",
     "Settings",
   ];
 
@@ -140,6 +154,87 @@ const Admin = () => {
                           className="px-6 py-4 text-center text-gray-500"
                         >
                           No courses found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      case "Payment History":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-gray-800">
+              Payment History
+            </h3>
+            {loadingOrders ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : errorOrders ? (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <strong>Error:</strong> {errorOrders}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Order ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Amount
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Created
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {orders.length > 0 ? (
+                      orders.map((order) => (
+                        <tr key={order.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {order.studentId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {order.price}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span
+                              className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                order.status === "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(order.createAt).toLocaleString("vi-VN", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="4"
+                          className="px-6 py-4 text-center text-gray-500"
+                        >
+                          No orders found
                         </td>
                       </tr>
                     )}
