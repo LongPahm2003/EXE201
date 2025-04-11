@@ -6,7 +6,7 @@ import {
   BarChartOutlined,
   DownOutlined,
   LogoutOutlined,
-  QuestionCircleOutlined,
+
   UserOutlined,
 } from "@ant-design/icons";
 import { logout } from "../redux/actions/auth/authActions";

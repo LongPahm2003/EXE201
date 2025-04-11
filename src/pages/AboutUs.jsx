@@ -1,8 +1,11 @@
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { motion, useLocation } from "framer-motion";
 
 const AboutUs = () => {
+  const location = useLocation();
   const settings = {
     dots: true,
     infinite: true,
@@ -10,8 +13,42 @@ const AboutUs = () => {
     slidesToShow: 3,
     slidesToScroll: 1,
   };
+
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      y: "100vh",
+      scale: 0.9,
+    },
+    in: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "tween",
+        duration: 0.5, // Đặt duration là 0.5 giây
+      },
+    },
+    out: {
+      opacity: 0,
+      y: "-100vh",
+      scale: 1.1,
+      transition: {
+        type: "tween",
+        duration: 0.5, // Đặt duration là 0.5 giây
+      },
+    },
+  };
+
   return (
-    <div className="bg-gray-100">
+    <motion.div
+      key={location.pathname}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      className="bg-gray-100"
+    >
       <header className="relative h-64 overflow-hidden">
         <img
           src="/src/assets/images/aboutus.jpg"
@@ -176,7 +213,7 @@ const AboutUs = () => {
           </div>
         </section>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
