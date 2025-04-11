@@ -14,15 +14,26 @@ const ChapterDetail = () => {
     }
   }, [dispatch, chapterId]);
 
-  if (loading) return <p>Đang tải...</p>;
-  if (error) return <p>Lỗi: {error}</p>;
+  if (loading)
+    return <p className="text-center text-gray-600 mt-6">Đang tải...</p>;
+  if (error)
+    return <p className="text-center text-red-500 mt-6">Lỗi: {error}</p>;
 
   return (
-    <div>
-      <h2>Danh sách bài học trong chương</h2>
-      <ul>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold text-center text-green-700 mb-6">
+        Danh sách bài học trong chương
+      </h2>
+      <ul className="space-y-4">
         {lessons.map((lesson) => (
-          <li key={lesson.id}>{lesson.name}</li>
+          <li
+            key={lesson.id}
+            className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:bg-green-50 hover:cursor-pointer hover:shadow-md transition duration-200"
+          >
+            <p className="text-lg text-gray-800 font-medium">
+              📖 {lesson.name}
+            </p>
+          </li>
         ))}
       </ul>
     </div>

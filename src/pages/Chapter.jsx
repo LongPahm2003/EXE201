@@ -15,19 +15,24 @@ const Chapter = () => {
     }
   }, [dispatch, courseId]);
 
-  if (loading) return <p>Đang tải...</p>;
-  if (error) return <p>Lỗi: {error}</p>;
+  if (loading)
+    return <p className="text-center text-gray-600 mt-6">Đang tải...</p>;
+  if (error)
+    return <p className="text-center text-red-500 mt-6">Lỗi: {error}</p>;
 
   return (
-    <div>
-      <h2>Danh sách chương trong khóa học</h2>
-      <ul>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold text-center text-blue-700 mb-6">
+        Danh sách chương trong khóa học
+      </h2>
+      <ul className="space-y-4">
         {chapters.map((chapter) => (
           <li
             key={chapter.id}
             onClick={() => navigate(`/chapters/${chapter.id}`)}
+            className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:bg-blue-50 hover:cursor-pointer hover:shadow-md transition duration-200"
           >
-            {chapter.name}
+            <p className="text-lg text-gray-800 font-medium">{chapter.name}</p>
           </li>
         ))}
       </ul>
