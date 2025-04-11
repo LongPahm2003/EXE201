@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Blog = () => {
+  const location = useLocation();
   const trendingPosts = [
     { id: 1, image: "/src/assets/images/blog.jpg", title: "Vue" },
     { id: 2, image: "/src/assets/images/blog.jpg", title: "React" },
@@ -50,8 +52,41 @@ const Blog = () => {
     // Thêm các bài viết khác tương tự
   ];
 
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      y: "100vh", // Bắt đầu từ dưới màn hình
+      scale: 0.5,
+    },
+    in: {
+      opacity: 1,
+      y: 0, // Di chuyển lên vị trí trung tâm
+      scale: 1,
+      transition: {
+        type: "tween",
+        duration: 0.5,
+      },
+    },
+    out: {
+      opacity: 0,
+      y: "-100vh", // Di chuyển lên trên màn hình để biến mất
+      scale: 1.1,
+      transition: {
+        type: "tween",
+        duration: 0.5,
+      },
+    },
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <motion.div
+      key={location.pathname}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      className="max-w-7xl mx-auto px-4 py-8"
+    >
       {/* Hero Section */}
       <div className="mb-12">
         <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -172,7 +207,7 @@ const Blog = () => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
