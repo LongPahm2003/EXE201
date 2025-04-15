@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const PaymentSuccess = () => {
@@ -12,7 +11,7 @@ const PaymentSuccess = () => {
         </h1>
         <p className="mt-2 text-gray-700">Cảm ơn bạn đã mua khóa học.</p>
         <button
-          onClick={() => navigate("/my-courses")}
+          onClick={() => navigate("/mycourses")}
           className="mt-5 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600"
         >
           Đi đến khóa học của tôi

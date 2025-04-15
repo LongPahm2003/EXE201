@@ -3,12 +3,14 @@ import { Bell, Search, Plus, Filter } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdCourses } from "../redux/actions/auth/courseActionAdmin";
 import { useNavigate } from "react-router";
-import { Image } from "antd";
+import { Image, Modal, Form, Input, Button, Upload, message } from "antd";
 import { fetchOrders } from "../redux/actions/orderActions";
+import axios from "axios";
 
 const Admin = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const [isModalOpen, setIsModalOpen] = useState(false); // State để mở/đóng modal
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user || null);
   const accessToken = useSelector(
@@ -23,6 +25,8 @@ const Admin = () => {
   const loadingOrders = useSelector((state) => state.order.loading);
   const errorOrders = useSelector((state) => state.order.error);
 
+  const [form] = Form.useForm(); // Form instance từ Ant Design
+
   useEffect(() => {
     if (!user || !accessToken) {
       navigate("/login");
@@ -32,7 +36,7 @@ const Admin = () => {
     const fetchData = async () => {
       try {
         await dispatch(fetchAdCourses(accessToken));
-        await dispatch(fetchOrders(accessToken)); // 👈 Thêm dòng này nếu bạn đã có action fetchOrders
+        await dispatch(fetchOrders(accessToken));
         console.log("Fetch data completed");
       } catch (err) {
         console.error("Fetch data error:", err);
@@ -41,6 +45,67 @@ const Admin = () => {
 
     fetchData();
   }, [dispatch, user, accessToken, navigate]);
+
+  // Mở modal
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Đóng modal
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    form.resetFields(); // Xóa dữ liệu form khi đóng
+  };
+
+  // Xử lý khi submit form
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const { name, description, price, image } = values;
+
+      // Chuyển image thành base64 nếu có
+      let imageUrl = "";
+      if (image && image.file) {
+        const file = image.file;
+        imageUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Gửi request tới API
+      const response = await axios.post(
+        "https://devkid.online/api/courses",
+        {
+          name,
+          description,
+          imageUrl,
+          price: parseFloat(price),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type":
+              "application/json;odata.metadata=minimal;odata.streaming=true",
+          },
+        }
+      );
+
+      if (response.data.isSuccess) {
+        message.success("Course added successfully!");
+        setIsModalOpen(false);
+        form.resetFields();
+        // Refresh danh sách khóa học
+        dispatch(fetchAdCourses(accessToken));
+      } else {
+        message.error("Failed to add course.");
+      }
+    } catch (error) {
+      console.error("Error adding course:", error);
+      message.error("Error adding course: " + error.message);
+    }
+  };
 
   const menuItems = [
     "Dashboard",
@@ -65,7 +130,10 @@ const Admin = () => {
                   <Filter size={16} className="text-gray-600" />
                   <span className="text-gray-700">Filter</span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button
+                  onClick={showModal} // Mở modal khi click
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   <Plus size={16} />
                   <span>Add Course</span>
                 </button>
@@ -161,6 +229,65 @@ const Admin = () => {
                 </table>
               </div>
             )}
+
+            {/* Modal để thêm khóa học */}
+            <Modal
+              title="Add New Course"
+              open={isModalOpen}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              okText="Add Course"
+              cancelText="Cancel"
+            >
+              <Form form={form} layout="vertical">
+                <Form.Item
+                  name="name"
+                  label="Course Name"
+                  rules={[
+                    { required: true, message: "Please enter course name" },
+                  ]}
+                >
+                  <Input placeholder="Enter course name" />
+                </Form.Item>
+
+                <Form.Item
+                  name="description"
+                  label="Description"
+                  rules={[
+                    { required: true, message: "Please enter description" },
+                  ]}
+                >
+                  <Input.TextArea
+                    placeholder="Enter course description"
+                    rows={4}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="price"
+                  label="Price"
+                  rules={[{ required: true, message: "Please enter price" }]}
+                >
+                  <Input type="number" placeholder="Enter price" />
+                </Form.Item>
+
+                <Form.Item
+                  name="image"
+                  label="Course Image"
+                  valuePropName="file"
+                  getValueFromEvent={(e) => ({ file: e.file })}
+                >
+                  <Upload
+                    beforeUpload={() => false} // Không tự động upload
+                    accept="image/*"
+                    listType="picture"
+                    maxCount={1}
+                  >
+                    <Button>Upload Image</Button>
+                  </Upload>
+                </Form.Item>
+              </Form>
+            </Modal>
           </div>
         );
       case "Payment History":
