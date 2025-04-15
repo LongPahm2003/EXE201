@@ -1,8 +1,8 @@
-import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { motion, useLocation } from "framer-motion";
+import { motion } from "framer-motion"; // Import motion from framer-motion
+import { useLocation } from "react-router-dom"; // Import useLocation from react-router-dom
 
 const AboutUs = () => {
   const location = useLocation();
