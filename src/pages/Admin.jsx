@@ -5,7 +5,12 @@ import { fetchAdCourses } from "../redux/actions/auth/courseActionAdmin";
 import { useNavigate } from "react-router";
 import { Image, Modal, Form, Input, Button, Upload, message } from "antd";
 import { fetchOrders } from "../redux/actions/orderActions";
-import axios from "axios";
+import { addCourse } from "../redux/actions/courseActions";
+
+// Dữ liệu giả lập cho danh sách khóa học (ánh xạ quizId với tên khóa học)
+const courseData = {
+  1: "Java", // quizId: 1 ánh xạ với tên khóa học
+};
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -26,6 +31,9 @@ const Admin = () => {
   const errorOrders = useSelector((state) => state.order.error);
 
   const [form] = Form.useForm(); // Form instance từ Ant Design
+  const [gradingSubmission, setGradingSubmission] = useState(null);
+  const [score, setScore] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (!user || !accessToken) {
@@ -45,6 +53,12 @@ const Admin = () => {
 
     fetchData();
   }, [dispatch, user, accessToken, navigate]);
+
+  // Cập nhật preview khi nhập URL
+  useEffect(() => {
+    const url = form.getFieldValue("imageUrl");
+    setImageUrl(url);
+  }, [form]);
 
   // Mở modal
   const showModal = () => {
@@ -74,25 +88,19 @@ const Admin = () => {
         });
       }
 
-      // Gửi request tới API
-      const response = await axios.post(
-        "https://devkid.online/api/courses",
-        {
-          name,
-          description,
-          imageUrl,
-          price: parseFloat(price),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type":
-              "application/json;odata.metadata=minimal;odata.streaming=true",
-          },
-        }
-      );
+      // Chuẩn bị dữ liệu khóa học
+      const courseData = {
+        name,
+        description,
+        price: parseFloat(price),
+        imageUrl,
+      };
 
-      if (response.data.isSuccess) {
+      // Dispatch action addCourse
+      const response = await dispatch(addCourse(courseData, accessToken));
+
+      // Kiểm tra kết quả từ action
+      if (response && response.isSuccess) {
         message.success("Course added successfully!");
         setIsModalOpen(false);
         form.resetFields();
@@ -107,6 +115,48 @@ const Admin = () => {
     }
   };
 
+  const handleGradeSubmission = (submission) => {
+    setGradingSubmission(submission);
+    setScore("");
+  };
+
+  const handleSubmitGrade = () => {
+    if (!score || isNaN(score) || score < 0 || score > 100) {
+      message.error("Please enter a valid score between 0 and 100.");
+      return;
+    }
+
+    const quizResult = {
+      studentId: gradingSubmission.studentId,
+      quizId: gradingSubmission.quizId,
+      courseName: courseData[gradingSubmission.quizId] || "Unknown Course",
+      answers: gradingSubmission.answers,
+      score: parseFloat(score),
+      status: "graded",
+      gradedAt: new Date().toISOString(),
+      timestamp: gradingSubmission.timestamp,
+    };
+
+    const existingResults =
+      JSON.parse(localStorage.getItem("quizResults")) || [];
+    const updatedResults = [...existingResults, quizResult];
+    localStorage.setItem("quizResults", JSON.stringify(updatedResults));
+
+    const submissions =
+      JSON.parse(localStorage.getItem("quizSubmissions")) || [];
+    const updatedSubmissions = submissions.filter(
+      (sub) =>
+        sub.studentId !== gradingSubmission.studentId ||
+        sub.quizId !== gradingSubmission.quizId ||
+        sub.timestamp !== gradingSubmission.timestamp
+    );
+    localStorage.setItem("quizSubmissions", JSON.stringify(updatedSubmissions));
+
+    setGradingSubmission(null);
+    setScore("");
+    message.success("Quiz graded successfully!");
+  };
+
   const menuItems = [
     "Dashboard",
     "Courses",
@@ -115,6 +165,7 @@ const Admin = () => {
     "Sales & Revenue",
     "Reports",
     "Payment History",
+    "Quiz",
     "Settings",
   ];
 
@@ -123,7 +174,7 @@ const Admin = () => {
       case "Courses":
         return (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
               <h3 className="text-2xl font-bold text-gray-800">All Courses</h3>
               <div className="flex gap-3">
                 <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
@@ -131,7 +182,7 @@ const Admin = () => {
                   <span className="text-gray-700">Filter</span>
                 </button>
                 <button
-                  onClick={showModal} // Mở modal khi click
+                  onClick={showModal}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Plus size={16} />
@@ -155,23 +206,23 @@ const Admin = () => {
                 </span>
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="bg-white rounded-lg shadow overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%] sm:w-[8%]">
                         Image
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%] sm:w-[20%]">
                         Course
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[40%] sm:w-[45%]">
                         Description
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%] sm:w-[12%]">
                         Price
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%] sm:w-[15%]">
                         Status
                       </th>
                     </tr>
@@ -183,25 +234,27 @@ const Admin = () => {
                           key={course.id || course._id}
                           className="hover:bg-gray-50 transition-colors"
                         >
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap w-[10%] sm:w-[8%]">
                             <Image
                               src={course.imageUrl}
                               alt={course.name}
-                              className="w-10 h-10 rounded-full"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
                             />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="font-medium text-gray-900">
+                          <td className="px-4 py-4 whitespace-nowrap w-[15%] sm:w-[20%]">
+                            <div className="font-medium text-gray-900 text-sm sm:text-base">
                               {course.name || course.title || "Untitled"}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {course.description || "Unknown"}
+                          <td className="px-4 py-4 text-sm text-gray-500 w-[40%] sm:w-[45%]">
+                            <div className="line-clamp-2">
+                              {course.description || "Unknown"}
+                            </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {course.price || course.price || 0}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 w-[15%] sm:w-[12%]">
+                            {course.price || 0}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-4 py-4 whitespace-nowrap w-[20%] sm:w-[15%]">
                             <span
                               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 course.status === "Active" || course.isPublished
@@ -219,7 +272,7 @@ const Admin = () => {
                       <tr>
                         <td
                           colSpan="5"
-                          className="px-6 py-4 text-center text-gray-500"
+                          className="px-4 py-4 text-center text-gray-500"
                         >
                           No courses found
                         </td>
@@ -305,20 +358,20 @@ const Admin = () => {
                 <strong>Error:</strong> {errorOrders}
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="bg-white rounded-lg shadow overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%] sm:w-[20%]">
                         Order ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%] sm:w-[20%]">
                         Amount
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%] sm:w-[20%]">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[35%] sm:w-[40%]">
                         Created
                       </th>
                     </tr>
@@ -327,13 +380,13 @@ const Admin = () => {
                     {orders.length > 0 ? (
                       orders.map((order) => (
                         <tr key={order.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 w-[25%] sm:w-[20%]">
                             {order.studentId}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 w-[20%] sm:w-[20%]">
                             {order.price}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm w-[20%] sm:w-[20%]">
                             <span
                               className={`px-2 py-1 text-xs font-semibold rounded-full ${
                                 order.status === "completed"
@@ -344,7 +397,7 @@ const Admin = () => {
                               {order.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 w-[35%] sm:w-[40%]">
                             {new Date(order.createAt).toLocaleString("vi-VN", {
                               day: "2-digit",
                               month: "2-digit",
@@ -359,7 +412,7 @@ const Admin = () => {
                       <tr>
                         <td
                           colSpan="4"
-                          className="px-6 py-4 text-center text-gray-500"
+                          className="px-4 py-4 text-center text-gray-500"
                         >
                           No orders found
                         </td>
@@ -369,6 +422,175 @@ const Admin = () => {
                 </table>
               </div>
             )}
+          </div>
+        );
+      case "Quiz":
+        const quizSubmissions =
+          JSON.parse(localStorage.getItem("quizSubmissions")) || [];
+        const groupedSubmissions = quizSubmissions.reduce((acc, submission) => {
+          const key = `${submission.studentId}-${submission.quizId}-${submission.timestamp}`;
+          if (!acc[key]) {
+            acc[key] = {
+              studentId: submission.studentId,
+              quizId: submission.quizId,
+              timestamp: submission.timestamp,
+              status: submission.status,
+              answers: [],
+            };
+          }
+          acc[key].answers.push({
+            questionText: submission.questionText,
+            selectedAnswer: submission.selectedAnswer,
+            correctAnswer: submission.correctAnswer,
+          });
+          return acc;
+        }, {});
+
+        const submissionList = Object.values(groupedSubmissions);
+
+        return (
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-gray-800">
+              Quiz Submissions
+            </h3>
+            {submissionList.length > 0 ? (
+              <div className="bg-white rounded-lg shadow overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%] sm:w-[20%]">
+                        Course Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%] sm:w-[15%]">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[35%] sm:w-[40%]">
+                        Submitted At
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%] sm:w-[25%]">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {submissionList.map((submission, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-4 text-sm text-gray-700 w-[25%] sm:w-[20%]">
+                          {courseData[submission.quizId] || "Unknown Course"}
+                        </td>
+                        <td className="px-4 py-4 text-sm w-[20%] sm:w-[15%]">
+                          <span
+                            className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                              submission.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}
+                          >
+                            {submission.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500 w-[35%] sm:w-[40%]">
+                          {new Date(submission.timestamp).toLocaleString(
+                            "vi-VN",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-sm w-[20%] sm:w-[25%]">
+                          {submission.status === "pending" && (
+                            <button
+                              onClick={() => handleGradeSubmission(submission)}
+                              className="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition-colors"
+                            >
+                              Grade
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center">
+                No quiz submissions available.
+              </p>
+            )}
+
+            <Modal
+              title="Grade Quiz Submission"
+              open={!!gradingSubmission}
+              onOk={handleSubmitGrade}
+              onCancel={() => setGradingSubmission(null)}
+              okText="Submit Grade"
+              cancelText="Cancel"
+              width={800}
+            >
+              {gradingSubmission && (
+                <div>
+                  <p>
+                    <strong>Course Name:</strong>{" "}
+                    {courseData[gradingSubmission.quizId] || "Unknown Course"}
+                  </p>
+                  <p>
+                    <strong>Submitted At:</strong>{" "}
+                    {new Date(gradingSubmission.timestamp).toLocaleString(
+                      "vi-VN",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
+                  </p>
+                  <div className="mt-4">
+                    <h4 className="text-lg font-semibold">Answers:</h4>
+                    <div className="space-y-4 mt-2 max-h-96 overflow-y-auto">
+                      {gradingSubmission.answers.map((answer, index) => (
+                        <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                          <p>
+                            <strong>Question {index + 1}:</strong>{" "}
+                            {answer.questionText}
+                          </p>
+                          <p>
+                            <strong>Selected Answer:</strong>{" "}
+                            {answer.selectedAnswer}
+                          </p>
+                          <p>
+                            <strong>Correct Answer:</strong>{" "}
+                            {answer.correctAnswer}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Total Score (0-100, each question is 10 points):
+                    </label>
+                    <input
+                      type="number"
+                      value={score}
+                      onChange={(e) => setScore(e.target.value)}
+                      min="0"
+                      max="100"
+                      step="10"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </Modal>
           </div>
         );
       default:
@@ -387,8 +609,7 @@ const Admin = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white p-5 shadow-md fixed h-screen">
+      <aside className="w-64 bg-white p-5 shadow-md">
         <h2 className="text-2xl font-bold text-gray-800">DevKid</h2>
         <ul className="mt-6 space-y-2">
           {menuItems.map((item) => (
@@ -405,21 +626,19 @@ const Admin = () => {
             </li>
           ))}
         </ul>
-        <div className="absolute bottom-5 flex items-center space-x-3">
+        <div className="mt-5 flex items-center space-x-3">
           <img
-            src={user.avatarUrl}
+            src={user?.avatarUrl || "https://via.placeholder.com/40"}
             alt="Admin"
             className="w-10 h-10 rounded-full"
           />
-          <span className="text-gray-700">{user.name}</span>
+          <span className="text-gray-700">{user?.name || "Admin"}</span>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 ml-64">
-        {/* Header */}
-        <header className="flex justify-between items-center mb-6">
-          <div className="relative w-80">
+      <main className="flex-1 p-4 sm:p-6">
+        <header className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-2.5 text-gray-500" />
             <input
               type="text"
@@ -429,12 +648,11 @@ const Admin = () => {
           </div>
           <div className="flex items-center space-x-4">
             <Bell className="text-gray-500 hover:text-gray-700 cursor-pointer" />
-            <span className="text-gray-700">{user.name}</span>
+            <span className="text-gray-700">{user?.name || "Admin"}</span>
           </div>
         </header>
 
-        {/* Dynamic Content */}
-        <div className="mt-6 bg-white p-6 shadow rounded-lg">
+        <div className="bg-white p-4 sm:p-6 shadow rounded-lg">
           {renderTabContent()}
         </div>
       </main>

@@ -6,8 +6,8 @@ import {
   BarChartOutlined,
   DownOutlined,
   LogoutOutlined,
-
   UserOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { logout } from "../redux/actions/auth/authActions";
 
@@ -18,6 +18,7 @@ const Header = () => {
 
   const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isResultModalVisible, setIsResultModalVisible] = useState(false);
 
   const showLoginModal = () => {
     setIsLoginModalVisible(true);
@@ -48,33 +49,46 @@ const Header = () => {
     navigate("/signin");
   };
 
-  // Menu cho dropdown
+  const showResultModal = () => {
+    setIsResultModalVisible(true);
+  };
+
+  const handleResultCancel = () => {
+    setIsResultModalVisible(false);
+  };
+
   const userMenu = (
     <Menu>
       <Menu.Item key="0" icon={<UserOutlined />}>
         <Link to="/profile">Profile</Link>
       </Menu.Item>
-      <Menu.Item key="2" icon={<BarChartOutlined />}>
+      <Menu.Item key="1" icon={<BarChartOutlined />}>
         <Link to="/mycourses">My Courses</Link>
       </Menu.Item>
-      <Menu.Item key="1" icon={<LogoutOutlined />}>
+      <Menu.Item key="2" icon={<FileTextOutlined />}>
+        <a onClick={showResultModal}>Result</a>
+      </Menu.Item>
+      <Menu.Item key="3" icon={<LogoutOutlined />}>
         <a onClick={handleLogout}>Logout</a>
       </Menu.Item>
       {user?.roleId === 1 && (
-        <Menu.Item key="2" icon={<BarChartOutlined />}>
+        <Menu.Item key="4" icon={<BarChartOutlined />}>
           <Link to="/admin">Admin Dashboard</Link>
         </Menu.Item>
       )}
     </Menu>
   );
 
-  // Kiểm tra nếu là admin thì vô hiệu hóa các liên kết
   const isAdmin = user?.roleId === 1;
+
+  const quizResults = JSON.parse(localStorage.getItem("quizResults")) || [];
+  const studentResults = quizResults.filter(
+    (result) => result.studentId === "student_1" && result.status === "graded"
+  );
 
   return (
     <div className="bg-[#49BBBD] shadow-sm">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        {/* Logo */}
         <div className="flex items-center">
           <img
             src="/src/assets/images/logo.jpg"
@@ -83,7 +97,6 @@ const Header = () => {
           />
         </div>
 
-        {/* Điều hướng */}
         <nav className="hidden md:flex space-x-16 text-white font-medium">
           {isAdmin ? (
             <>
@@ -114,7 +127,6 @@ const Header = () => {
           )}
         </nav>
 
-        {/* Hồ sơ người dùng và giỏ hàng */}
         <div className="flex items-center space-x-4">
           <Link to="/cart" className="text-white hover:text-gray-900">
             <img
@@ -145,7 +157,6 @@ const Header = () => {
           )}
         </div>
 
-        {/* Modal đăng nhập */}
         <Modal
           title={
             <div className="flex flex-col items-center">
@@ -193,6 +204,55 @@ const Header = () => {
               </div>
             </div>
           )}
+        </Modal>
+
+        <Modal
+          title="Quiz Results"
+          visible={isResultModalVisible}
+          onCancel={handleResultCancel}
+          footer={null}
+          width={600}
+          className="rounded-lg"
+        >
+          <div className="p-6">
+            {studentResults.length > 0 ? (
+              <div className="space-y-4">
+                {studentResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-gray-50 rounded-lg shadow-md"
+                  >
+                    <p>
+                      <strong>Quiz ID:</strong> {result.quizId}
+                    </p>
+                    <p>
+                      <strong>Question:</strong> {result.questionText}
+                    </p>
+                    <p>
+                      <strong>Your Answer:</strong> {result.selectedAnswer}
+                    </p>
+                    <p>
+                      <strong>Score:</strong> {result.score}/100
+                    </p>
+                    <p>
+                      <strong>Graded At:</strong>{" "}
+                      {new Date(result.gradedAt).toLocaleString("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center">
+                No results available yet.
+              </p>
+            )}
+          </div>
         </Modal>
       </div>
     </div>
