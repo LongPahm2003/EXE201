@@ -1,6 +1,7 @@
+// reducers/myCoursesReducer.js
 const initialState = {
   loading: false,
-  courses: [], // Danh sách khóa học
+  courses: [],
   error: null,
 };
 
@@ -11,7 +12,7 @@ const myCoursesReducer = (state = initialState, action) => {
     case "FETCH_COURSES_SUCCESS":
       return { ...state, loading: false, courses: action.payload };
     case "FETCH_COURSES_FAILURE":
-      return { ...state, loading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload, courses: [] };
     default:
       return state;
   }

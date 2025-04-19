@@ -17,19 +17,11 @@ import MyCourses from "./pages/MyCourses";
 import Chapter from "./pages/Chapter";
 import ChapterDetail from "./pages/ChapterDetail";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import LessonDetail from "./pages/LessonDetail";
+import QuizDetail from "./pages/QuizDetail";
 
 function App() {
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const storedUser = JSON.parse(localStorage.getItem("user"));
-
-  //   if (storedUser?.roleId === 1) {
-  //     navigate("/admin");
-  //   } else if (storedUser) {
-  //     navigate("/");
-  //   }
-  // }, []);
 
   return (
     <Routes>
@@ -47,6 +39,8 @@ function App() {
         <Route path="/mycourses" element={<MyCourses />} />
         <Route path="/courses/:courseId" element={<Chapter />} />
         <Route path="/chapters/:chapterId" element={<ChapterDetail />} />
+        <Route path="/lesson/:lessonId" element={<LessonDetail />} />
+        <Route path="/quiz/:id" element={<QuizDetail />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
       </Route>
 

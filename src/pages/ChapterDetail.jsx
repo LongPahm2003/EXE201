@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLessons } from "../redux/actions/lessonsActions";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const ChapterDetail = () => {
   const { chapterId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { lessons, loading, error } = useSelector((state) => state.lessons);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ const ChapterDetail = () => {
         {lessons.map((lesson) => (
           <li
             key={lesson.id}
+            onClick={() => navigate(`/lesson/${lesson.id}`)}
             className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:bg-green-50 hover:cursor-pointer hover:shadow-md transition duration-200"
           >
             <p className="text-lg text-gray-800 font-medium">
